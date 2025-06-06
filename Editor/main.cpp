@@ -6,7 +6,7 @@
 class MyApplication : public Application {
 public:
 	void on_update() override {
-		std::cout << "Updating application..." << std::endl;
+		//std::cout << "Updating application..." << std::endl;
 	}
 };
 

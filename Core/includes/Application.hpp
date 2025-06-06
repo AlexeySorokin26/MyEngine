@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+
+class Window;
 
 class Application {
 public:
@@ -12,6 +15,7 @@ public:
 	Application& operator=(Application&&) = delete;
 
 	virtual int start(unsigned int width, unsigned int height, const char* title);
-
-	virtual void on_update() = 0;
+	virtual void on_update();
+private:
+	std::unique_ptr<Window> window;
 };

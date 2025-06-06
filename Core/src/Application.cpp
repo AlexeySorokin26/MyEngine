@@ -1,59 +1,32 @@
 #include "Application.hpp"
 #include "Log.hpp"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <iostream>
+#include "Window.hpp"
 
 Application::Application() {
-	LOG_INFO("Application created");
+	LOG_INFO("Application started");
 }
 
 Application::~Application() {
+	LOG_INFO("Application closed");
 }
 
 int Application::start(unsigned int width, unsigned int height, const char* title) {
-	GLFWwindow* window;
 
-	/* Initialize the library */
-	if (!glfwInit())
-		return -1;
+	window = std::make_unique<Window>(title, width, height);
+	window->set_event_callback(
+		[](Event& event) {
+			LOG_INFO("[Event] width {0} and height {1} ", event.width, event.height);
+		}
+	);
 
-	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(width, 480, title, NULL, NULL);
-	if (!window)
-	{
-		glfwTerminate();
-		return -1;
-	}
-
-	/* Make the window's context current */
-	glfwMakeContextCurrent(window);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		LOG_CRIT("Failed to initialize GLAD");
-		return -1;
-	}
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
-	{
-		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
-		/* Poll for and process events */
-		glfwPollEvents();
-
+	while (true) {
+		window->on_update();
 		on_update();
 	}
 
-	glfwTerminate();
 	return 0;
 }
 
 void Application::on_update() {
+
 }
