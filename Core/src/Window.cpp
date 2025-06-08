@@ -42,6 +42,7 @@ int Window::init() {
 		return -1;
 	}
 	glfwSetWindowUserPointer(window, &windowData);
+	// here we got event from window (our app not application.cpp)
 	glfwSetWindowSizeCallback(window,
 		[](GLFWwindow* window, int width, int height) {
 			LOG_INFO("[Window] New size width {0} and height {1} ", width, height);
@@ -49,11 +50,31 @@ int Window::init() {
 			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 			data.height = height;
 			data.width = width;
+			// Create event
+			EventWindowResize event(width, height);
+			// Call callback this guy window->set_event_callback or more precise this one eventDispather.dispatch(e);
+			data.eventCallbackFn(event);
+		}
+	);
 
-			Event event;
-			event.height = height;
-			event.width = width;
+	glfwSetCursorPosCallback(window,
+		[](GLFWwindow* window, double x, double y) {
+			LOG_INFO("[Callback from Window] Cursor pos {0}X{1}", x, y);
 
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+			EventMouseMoved event(x, y);
+			data.eventCallbackFn(event);
+		}
+	);
+
+	glfwSetWindowCloseCallback(window,
+		[](GLFWwindow* window) {
+			LOG_INFO("[Callback from Window] Window closed");
+
+			WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+			EventWindowClose event;
 			data.eventCallbackFn(event);
 		}
 	);

@@ -9,7 +9,7 @@ class GLFWwindow;
 
 class Window {
 public:
-	using EventCallbackFn = std::function<void(Event&)>;
+	using EventCallbackFn = std::function<void(BaseEvent&)>;
 
 	Window(std::string title, const unsigned int width, unsigned int height);
 	~Window();

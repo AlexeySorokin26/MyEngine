@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Event.hpp"
+
 #include <memory>
 
 class Window;
@@ -18,4 +20,7 @@ public:
 	virtual void on_update();
 private:
 	std::unique_ptr<Window> window;
+
+	EventDispatcher eventDispather;
+	bool closedWindow = false;
 };
