@@ -4,11 +4,18 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 static bool glfw_initialized = false;
 
 Window::Window(std::string title, const unsigned int width, unsigned int height) :
 	windowData({ std::move(title), width, height }) {
 	int res = init();
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplOpenGL3_Init();
 }
 
 Window::~Window() {
@@ -90,6 +97,23 @@ void Window::shutdown() {
 void Window::on_update() {
 	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	// let imgut know size of our window
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize.x = static_cast<float>(get_width());
+	io.DisplaySize.y = static_cast<float>(get_height());
+	// Create a frame where we want to draw
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui::NewFrame();
+	// Draw (just create a demo window)
+	ImGui::ShowDemoWindow();
+	// Преобразует UI в данные для отрисовки
+	// create here vertex buffers index buffers and so on
+	// so data for opengl for example 
+	ImGui::Render();
+	// Use this data in our backend (opengl)
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }

@@ -54,3 +54,44 @@ target_link_libraries(${CORE_PROJECT_NAME}
 	PRIVATE
 	glad
 )
+
+set(IMGUI_INCLUDES 
+	../external/imgui/imgui.h 
+	../external/imgui/backends/imgui_impl_glfw.h
+	../external/imgui/backends/imgui_impl_opengl3.h
+)
+
+set(IMGUI_SOURCES
+	../external/imgui/imgui.cpp
+	../external/imgui/backends/imgui_impl_glfw.cpp
+	../external/imgui/backends/imgui_impl_opengl3.cpp
+	../external/imgui/imgui_draw.cpp
+	../external/imgui/imgui_demo.cpp
+	../external/imgui/imgui_tables.cpp
+	../external/imgui/imgui_widgets.cpp
+)
+
+add_library(IMGUI
+	STATIC
+	${IMGUI_INCLUDES}
+	${IMGUI_SOURCES}
+)
+
+target_include_directories(IMGUI
+	PUBLIC
+	../external
+)
+target_include_directories(IMGUI
+	PUBLIC
+	../external/imgui
+)
+target_link_libraries(IMGUI
+	PRIVATE
+	glad glfw
+)
+
+target_link_libraries(${CORE_PROJECT_NAME}
+	PRIVATE
+	IMGUI
+)
+
