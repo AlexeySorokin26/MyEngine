@@ -6,6 +6,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 static bool glfw_initialized = false;
 
@@ -46,6 +47,7 @@ Window::Window(std::string title, const unsigned int width, unsigned int height)
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 }
 
@@ -202,7 +204,7 @@ void Window::shutdown() {
 }
 
 void Window::on_update() {
-	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClearColor(backgroundCol[0], backgroundCol[1], backgroundCol[2], backgroundCol[3]);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// use this shader prog
@@ -220,10 +222,19 @@ void Window::on_update() {
 		io.DisplaySize.y = static_cast<float>(get_height());
 		// Create a frame where we want to draw
 		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		// Draw (just create a demo window)
 		ImGui::ShowDemoWindow();
-		// Преобразует UI в данные для отрисовки
+
+		// Create a window to change color
+		{
+			ImGui::Begin("Backroungd color window");
+			ImGui::ColorEdit4("Change background color", backgroundCol);
+			ImGui::End();
+		}
+
+		// Conver UI data into data to draw
 		// create here vertex buffers index buffers and so on
 		// so data for opengl for example 
 		ImGui::Render();

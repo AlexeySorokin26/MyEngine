@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 class Window {
 public:
@@ -38,4 +38,6 @@ private:
 
 	GLFWwindow* window;
 	WindowData windowData;
+
+	float backgroundCol[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
 };
