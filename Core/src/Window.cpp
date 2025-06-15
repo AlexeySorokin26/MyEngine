@@ -1,6 +1,7 @@
 #include "Window.hpp"
 #include "Log.hpp"
 #include "Rendering/OpenGL/ShaderProgram.hpp"
+#include "Rendering/OpenGL/VertexBuffer.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -44,6 +45,8 @@ const char* frag_shader =
 GLuint vao;
 
 std::unique_ptr<ShaderProgram> shaderProgram;
+std::unique_ptr<VertexBuffer> pointsVBO;
+std::unique_ptr<VertexBuffer> colorsVBO;
 
 Window::Window(std::string title, const unsigned int width, unsigned int height) :
 	windowData({ std::move(title), width, height }) {
@@ -154,21 +157,8 @@ int Window::init() {
 
 	// Fill GPU data and let it know how to handle data
 	{
-		// Pass data to gpu
-		// Create vao->Make it current->Copy data from CPU to GPU->
-		GLuint points_vbo = 0;
-		glGenBuffers(1, &points_vbo);
-		// Link it and make it current
-		glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
-		// Copy from CPU to GPU memory
-		glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-
-		// The same for colors
-		GLuint colors_vbo = 0;
-		glGenBuffers(1, &colors_vbo);
-		glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
+		pointsVBO = std::make_unique<VertexBuffer>(points, sizeof(points));
+		colorsVBO = std::make_unique<VertexBuffer>(colors, sizeof(colors));
 		// Explain GPU how to handle data
 		// Create VAO->activate it->activate interesting pos and relevant vbo->link data
 		glGenVertexArrays(1, &vao);
@@ -176,14 +166,15 @@ int Window::init() {
 		glBindVertexArray(vao);
 		// activate pos (by default they switchted off)
 		glEnableVertexAttribArray(0);
+
 		// activate correct buffer obj
-		glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+		pointsVBO->Bind();
 		// link data
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 		// the same for colors
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+		colorsVBO->Bind();
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 

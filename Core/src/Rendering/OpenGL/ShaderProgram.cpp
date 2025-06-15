@@ -74,7 +74,7 @@ void ShaderProgram::Bind() {
 	glUseProgram(id);
 }
 
-void ShaderProgram::Bind() {
+void ShaderProgram::UnBind() {
 	glUseProgram(0);
 }
 

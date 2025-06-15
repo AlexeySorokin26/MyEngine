@@ -10,11 +10,13 @@ set(CORE_PUBLIC_INCLUDES
 set(CORE_PRIVATE_INCLUDES
 	includes/Window.hpp
 	src/Rendering/OpenGL/ShaderProgram.hpp
+	src/Rendering/OpenGL/VertexBuffer.hpp
 )
 set(CORE_PRIVATE_SOURCES
 	src/Application.cpp
 	src/Window.cpp
 	src/Rendering/OpenGL/ShaderProgram.cpp
+	src/Rendering/OpenGL/VertexBuffer.cpp
 )
 set(ENGLINE_ALL_SOURCES
 	${CORE_PUBLIC_INCLUDES}
