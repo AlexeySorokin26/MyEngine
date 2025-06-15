@@ -9,16 +9,21 @@ set(CORE_PUBLIC_INCLUDES
 )
 set(CORE_PRIVATE_INCLUDES
 	includes/Window.hpp
+	src/Rendering/OpenGL/ShaderProgram.hpp
 )
 set(CORE_PRIVATE_SOURCES
 	src/Application.cpp
 	src/Window.cpp
+	src/Rendering/OpenGL/ShaderProgram.cpp
 )
-
-add_library(${CORE_PROJECT_NAME} STATIC
+set(ENGLINE_ALL_SOURCES
 	${CORE_PUBLIC_INCLUDES}
 	${CORE_PRIVATE_INCLUDES}
 	${CORE_PRIVATE_SOURCES}
+)
+
+add_library(${CORE_PROJECT_NAME} STATIC
+	${ENGLINE_ALL_SOURCES} 
 )
 
 target_include_directories(${CORE_PROJECT_NAME} PUBLIC

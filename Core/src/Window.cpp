@@ -1,5 +1,6 @@
 #include "Window.hpp"
 #include "Log.hpp"
+#include "Rendering/OpenGL/ShaderProgram.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -7,6 +8,8 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
+
+#include <memory>
 
 static bool glfw_initialized = false;
 
@@ -38,8 +41,9 @@ const char* frag_shader =
 "	frag_col = vec4(col, 1.0);" // 4 is alfa 
 "}";
 
-GLuint shader_prog;
 GLuint vao;
+
+std::unique_ptr<ShaderProgram> shaderProgram;
 
 Window::Window(std::string title, const unsigned int width, unsigned int height) :
 	windowData({ std::move(title), width, height }) {
@@ -142,22 +146,10 @@ int Window::init() {
 
 	// Create shader programm 
 	{
-		// Create->Pass data->Comple
-		GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vs, 1, &vertex_shader, nullptr); // 3 arg in a pointer to array (pointer to pointer)
-		glCompileShader(vs);
-		// The same for frag
-		GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fs, 1, &frag_shader, nullptr);
-		glCompileShader(fs);
-		// Create prog and link shaders
-		shader_prog = glCreateProgram();
-		glAttachShader(shader_prog, vs);
-		glAttachShader(shader_prog, fs);
-		glLinkProgram(shader_prog);
-		// cleanup
-		glDeleteShader(vs);
-		glDeleteShader(fs);
+		shaderProgram = std::make_unique<ShaderProgram>(vertex_shader, frag_shader);
+		if (!shaderProgram->IsCompiled()) {
+			return false;
+		}
 	}
 
 	// Fill GPU data and let it know how to handle data
@@ -208,7 +200,7 @@ void Window::on_update() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// use this shader prog
-	glUseProgram(shader_prog);
+	shaderProgram->Bind();
 	// use this vao
 	glBindVertexArray(vao);
 	// draw
