@@ -2,6 +2,8 @@
 #include "Log.hpp"
 #include "Rendering/OpenGL/ShaderProgram.hpp"
 #include "Rendering/OpenGL/VertexBuffer.hpp"
+#include "Rendering/OpenGL/VertexArray.hpp"
+#include "Rendering/OpenGL/IndexBuffer.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -14,15 +16,15 @@
 
 static bool glfw_initialized = false;
 
-GLfloat points[] = {
-	0.0f, 0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	-0.5f, -0.5f, 0.0f,
+GLfloat posColors[] = {
+	-0.5f, -0.5f, 0.0f,	 1.0f, 1.0f, 0.0f,
+	0.5f, -0.5f, 0.0f,	 1.0f, 0.0f, 0.0f,
+	-0.5f, 0.5f, 0.0f,	 1.0f, 0.0f, 1.0f,
+	0.5f, 0.5f, 0.0f,	 0.0f, 1.0f, 1.0f
 };
-GLfloat colors[] = {
-	1.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 1.0f,
+
+GLuint indices[] = {
+	0, 1, 2, 3, 2, 1
 };
 
 const char* vertex_shader =
@@ -42,11 +44,12 @@ const char* frag_shader =
 "	frag_col = vec4(col, 1.0);" // 4 is alfa 
 "}";
 
-GLuint vao;
 
 std::unique_ptr<ShaderProgram> shaderProgram;
-std::unique_ptr<VertexBuffer> pointsVBO;
-std::unique_ptr<VertexBuffer> colorsVBO;
+
+std::unique_ptr<VertexArray> vaoBuffer;
+std::unique_ptr<VertexBuffer> posColorsVBO;
+std::unique_ptr<IndexBuffer> indexBuffer;
 
 Window::Window(std::string title, const unsigned int width, unsigned int height) :
 	windowData({ std::move(title), width, height }) {
@@ -157,27 +160,19 @@ int Window::init() {
 
 	// Fill GPU data and let it know how to handle data
 	{
-		pointsVBO = std::make_unique<VertexBuffer>(points, sizeof(points));
-		colorsVBO = std::make_unique<VertexBuffer>(colors, sizeof(colors));
-		// Explain GPU how to handle data
-		// Create VAO->activate it->activate interesting pos and relevant vbo->link data
-		glGenVertexArrays(1, &vao);
-		// make it current
-		glBindVertexArray(vao);
-		// activate pos (by default they switchted off)
-		glEnableVertexAttribArray(0);
-
-		// activate correct buffer obj
-		pointsVBO->Bind();
-		// link data
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-		// the same for colors
-		glEnableVertexAttribArray(1);
-		colorsVBO->Bind();
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		// Fill GPU with data and explain how to deal with that
+		{
+			BufferLayout bufferLayout2vec3{ // 2 elements with 3 components
+				ShaderDataType::Float3,
+				ShaderDataType::Float3
+			};
+			vaoBuffer = std::make_unique<VertexArray>();
+			posColorsVBO = std::make_unique<VertexBuffer>(posColors, sizeof(posColors), bufferLayout2vec3);
+			indexBuffer = std::make_unique<IndexBuffer>(indices, sizeof(indices) / sizeof(GLuint));
+			vaoBuffer->SetIndexBuffer(*indexBuffer);
+			vaoBuffer->AddVertexBuffer(*posColorsVBO);
+		}
 	}
-
 	return 0;
 }
 
@@ -190,13 +185,6 @@ void Window::on_update() {
 	glClearColor(backgroundCol[0], backgroundCol[1], backgroundCol[2], backgroundCol[3]);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// use this shader prog
-	shaderProgram->Bind();
-	// use this vao
-	glBindVertexArray(vao);
-	// draw
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
 	// IMgui part
 	{
 		// let imgut know size of our window
@@ -208,7 +196,7 @@ void Window::on_update() {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		// Draw (just create a demo window)
-		ImGui::ShowDemoWindow();
+		// ImGui::ShowDemoWindow();
 
 		// Create a window to change color
 		{
@@ -216,6 +204,11 @@ void Window::on_update() {
 			ImGui::ColorEdit4("Change background color", backgroundCol);
 			ImGui::End();
 		}
+		// use this shader prog
+		shaderProgram->Bind();
+		vaoBuffer->Bind();
+		// draw
+		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vaoBuffer->GetIndicesCount()), GL_UNSIGNED_INT, nullptr);
 
 		// Conver UI data into data to draw
 		// create here vertex buffers index buffers and so on

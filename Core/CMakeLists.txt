@@ -11,12 +11,16 @@ set(CORE_PRIVATE_INCLUDES
 	includes/Window.hpp
 	src/Rendering/OpenGL/ShaderProgram.hpp
 	src/Rendering/OpenGL/VertexBuffer.hpp
+	src/Rendering/OpenGL/VertexArray.hpp
+	src/Rendering/OpenGL/IndexBuffer.hpp
 )
 set(CORE_PRIVATE_SOURCES
 	src/Application.cpp
 	src/Window.cpp
 	src/Rendering/OpenGL/ShaderProgram.cpp
 	src/Rendering/OpenGL/VertexBuffer.cpp
+	src/Rendering/OpenGL/VertexArray.cpp
+	src/Rendering/OpenGL/IndexBuffer.cpp
 )
 set(ENGLINE_ALL_SOURCES
 	${CORE_PUBLIC_INCLUDES}
