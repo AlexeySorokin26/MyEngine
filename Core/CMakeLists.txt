@@ -59,6 +59,11 @@ target_link_libraries(${CORE_PROJECT_NAME} PRIVATE
 	glad
 )
 
+add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
+target_link_libraries(${CORE_PROJECT_NAME} PRIVATE
+	glm
+)
+
 set(IMGUI_INCLUDES 
 	../external/imgui/imgui.h 
 	../external/imgui/backends/imgui_impl_glfw.h

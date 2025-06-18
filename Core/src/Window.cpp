@@ -12,6 +12,8 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
+#include <glm/mat3x3.hpp>
+
 #include <memory>
 
 static bool glfw_initialized = false;
@@ -173,6 +175,9 @@ int Window::init() {
 			vaoBuffer->AddVertexBuffer(*posColorsVBO);
 		}
 	}
+
+	glm::mat3 mat1{ 4, 0,0, 1, 1, 1 ,2 ,2 , 2 };
+
 	return 0;
 }
 
