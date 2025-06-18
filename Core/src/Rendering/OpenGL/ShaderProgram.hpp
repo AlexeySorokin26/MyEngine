@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <glm/mat4x4.hpp>
 
 class ShaderProgram {
 public:
@@ -9,6 +10,7 @@ public:
 	bool IsCompiled() { return isCompiled; }
 	void Bind();
 	void UnBind();
+	void SetMatrix4(const char* name, const glm::mat4 m) const;
 private:
 	bool isCompiled = false;
 	unsigned int id;

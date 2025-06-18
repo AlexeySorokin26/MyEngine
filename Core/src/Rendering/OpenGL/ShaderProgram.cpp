@@ -2,6 +2,7 @@
 #include "Log.hpp"
 
 #include <string>
+#include <glm/gtc/type_ptr.hpp>
 
 ShaderProgram::ShaderProgram(const char* vertex_shader, const char* frag_shader) {
 
@@ -49,6 +50,10 @@ ShaderProgram::ShaderProgram(const char* vertex_shader, const char* frag_shader)
 	// Now delete
 	glDeleteShader(vs);
 	glDeleteShader(fs);
+}
+
+void ShaderProgram::SetMatrix4(const char* name, const glm::mat4 m) const {
+	glUniformMatrix4fv(glGetUniformLocation(id, name), 1, GL_FALSE, glm::value_ptr(m));
 }
 
 bool ShaderProgram::CreateShader(const char* source, const GLenum shaderType, GLuint& shaderId) {

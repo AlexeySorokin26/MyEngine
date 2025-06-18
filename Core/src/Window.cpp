@@ -13,6 +13,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include <glm/mat3x3.hpp>
+#include <glm/trigonometric.hpp>
 
 #include <memory>
 
@@ -29,14 +30,21 @@ GLuint indices[] = {
 	0, 1, 2, 3, 2, 1
 };
 
+float scale[] = { 1.f, 1.f, 1.f };
+float rotate = { 0.f };
+float translation[] = { 0.f, 0.f, 1.f };
+
 const char* vertex_shader =
 "#version 460\n"
 "layout(location=0) in vec3 v_pos;"
 "layout(location=1) in vec3 v_col;"
+"uniform mat4 scaleMat;"
+"uniform mat4 rotateZMat;"
+"uniform mat4 translationMat;"
 "out vec3 col;"
 "void main() {"
 "	col = v_col;"
-"	gl_Position = vec4(v_pos, 1.0);"
+"	gl_Position = translationMat * rotateZMat * scaleMat * vec4(v_pos, 1.0);"
 "}";
 const char* frag_shader =
 "#version 460\n"
@@ -190,7 +198,6 @@ void Window::on_update() {
 	glClearColor(backgroundCol[0], backgroundCol[1], backgroundCol[2], backgroundCol[3]);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// IMgui part
 	{
 		// let imgut know size of our window
 		ImGuiIO& io = ImGui::GetIO();
@@ -200,17 +207,45 @@ void Window::on_update() {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		// Draw (just create a demo window)
-		// ImGui::ShowDemoWindow();
 
-		// Create a window to change color
-		{
-			ImGui::Begin("Backroungd color window");
-			ImGui::ColorEdit4("Change background color", backgroundCol);
-			ImGui::End();
-		}
 		// use this shader prog
 		shaderProgram->Bind();
+
+		glm::mat4 scaleMat(
+			scale[0], 0, 0, 0,
+			0, scale[1], 0, 0,
+			0, 0, scale[2], 0,
+			0, 0, 0, 1
+		);
+		float rotateRad = glm::radians(rotate);
+
+		glm::mat4 rotateZMat(
+			cos(rotateRad), sin(rotateRad), 0, 0,
+			-sin(rotateRad), cos(rotateRad), 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		);
+
+		glm::mat4 translationMat(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			translation[0], translation[1], translation[2], 1
+		);
+		// Create a window to adjust params
+		{
+			ImGui::Begin("Adjust parameters");
+			ImGui::ColorEdit4("Change background color", backgroundCol);
+			ImGui::SliderFloat3("Scale mat", scale, 0.f, 1.f);
+			ImGui::SliderFloat("Rotate", &rotate, 0.f, 360.f);
+			ImGui::SliderFloat3("Translation", translation, 0.f, 10.f);
+			ImGui::End();
+		}
+
+		shaderProgram->SetMatrix4("scaleMat", scaleMat);
+		shaderProgram->SetMatrix4("rotateZMat", rotateZMat);
+		shaderProgram->SetMatrix4("translationMat", translationMat);
+
 		vaoBuffer->Bind();
 		// draw
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vaoBuffer->GetIndicesCount()), GL_UNSIGNED_INT, nullptr);
