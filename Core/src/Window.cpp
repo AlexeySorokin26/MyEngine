@@ -1,5 +1,6 @@
 #include "Window.hpp"
 #include "Log.hpp"
+#include "Camera.hpp"
 #include "Rendering/OpenGL/ShaderProgram.hpp"
 #include "Rendering/OpenGL/VertexBuffer.hpp"
 #include "Rendering/OpenGL/VertexArray.hpp"
@@ -34,17 +35,21 @@ float scale[] = { 1.f, 1.f, 1.f };
 float rotate = { 0.f };
 float translation[] = { 0.f, 0.f, 1.f };
 
+float camPos[] = { 0.f, 0.f, 10.f };
+float camRotation[] = { 0.f, 0.f, 0.f };
+bool perspectiveCam = false;
+Camera camera;
+
 const char* vertex_shader =
 "#version 460\n"
 "layout(location=0) in vec3 v_pos;"
 "layout(location=1) in vec3 v_col;"
-"uniform mat4 scaleMat;"
-"uniform mat4 rotateZMat;"
-"uniform mat4 translationMat;"
+"uniform mat4 modelMat;"
+"uniform mat4 proViewMat;"
 "out vec3 col;"
 "void main() {"
 "	col = v_col;"
-"	gl_Position = translationMat * rotateZMat * scaleMat * vec4(v_pos, 1.0);"
+"	gl_Position = proViewMat * modelMat * vec4(v_pos, 1.0);"
 "}";
 const char* frag_shader =
 "#version 460\n"
@@ -118,7 +123,7 @@ int Window::init() {
 		// here we got event from window (our app not application.cpp)
 		glfwSetWindowSizeCallback(window,
 			[](GLFWwindow* window, int width, int height) {
-				LOG_INFO("[Window] New size width {0} and height {1} ", width, height);
+				//LOG_INFO("[Window] New size width {0} and height {1} ", width, height);
 
 				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 				data.height = height;
@@ -132,7 +137,7 @@ int Window::init() {
 
 		glfwSetCursorPosCallback(window,
 			[](GLFWwindow* window, double x, double y) {
-				LOG_INFO("[Callback from Window] Cursor pos {0}X{1}", x, y);
+				//LOG_INFO("[Callback from Window] Cursor pos {0}X{1}", x, y);
 
 				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
@@ -143,7 +148,7 @@ int Window::init() {
 
 		glfwSetWindowCloseCallback(window,
 			[](GLFWwindow* window) {
-				LOG_INFO("[Callback from Window] Window closed");
+				//LOG_INFO("[Callback from Window] Window closed");
 
 				WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
@@ -217,8 +222,8 @@ void Window::on_update() {
 			0, 0, scale[2], 0,
 			0, 0, 0, 1
 		);
-		float rotateRad = glm::radians(rotate);
 
+		float rotateRad = glm::radians(rotate);
 		glm::mat4 rotateZMat(
 			cos(rotateRad), sin(rotateRad), 0, 0,
 			-sin(rotateRad), cos(rotateRad), 0, 0,
@@ -239,12 +244,21 @@ void Window::on_update() {
 			ImGui::SliderFloat3("Scale mat", scale, 0.f, 1.f);
 			ImGui::SliderFloat("Rotate", &rotate, 0.f, 360.f);
 			ImGui::SliderFloat3("Translation", translation, 0.f, 10.f);
+
+			ImGui::SliderFloat3("Cam pos", camPos, -10.f, 10.f);
+			ImGui::SliderFloat3("Cam rotation", camRotation, 0.f, 360.f);
+			ImGui::Checkbox("Cam perspective", &perspectiveCam);
+
 			ImGui::End();
 		}
 
-		shaderProgram->SetMatrix4("scaleMat", scaleMat);
-		shaderProgram->SetMatrix4("rotateZMat", rotateZMat);
-		shaderProgram->SetMatrix4("translationMat", translationMat);
+		auto modelMat = translationMat * rotateZMat * scaleMat;
+
+		shaderProgram->SetMatrix4("modelMat", modelMat);
+		camera.SetPosRot(glm::vec3(camPos[0], camPos[1], camPos[2]), glm::vec3(camRotation[0], camRotation[1], camRotation[2]));
+		camera.SetProjMode(perspectiveCam ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
+		auto projViewMat = camera.GetProjMatrix() * camera.GetViewMatrix();
+		shaderProgram->SetMatrix4("proViewMat", projViewMat);
 
 		vaoBuffer->Bind();
 		// draw

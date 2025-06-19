@@ -16,7 +16,7 @@ int Application::start(unsigned int width, unsigned int height, const char* titl
 	// we set callback in dipatcher
 	eventDispather.add_event_listener<EventMouseMoved>(
 		[](EventMouseMoved& event) {
-			LOG_INFO("[MouseMoved] x {0} and y {1} ", event.x, event.y);
+			//LOG_INFO("[MouseMoved] x {0} and y {1} ", event.x, event.y);
 		}
 	);
 	// we set another callback in dipatcher
