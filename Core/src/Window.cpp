@@ -1,12 +1,13 @@
 #include "Window.hpp"
 #include "Log.hpp"
 #include "Camera.hpp"
+
 #include "Rendering/OpenGL/ShaderProgram.hpp"
 #include "Rendering/OpenGL/VertexBuffer.hpp"
 #include "Rendering/OpenGL/VertexArray.hpp"
 #include "Rendering/OpenGL/IndexBuffer.hpp"
+#include "Rendering/OpenGL/Renderer.hpp"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <imgui/imgui.h>
@@ -17,8 +18,6 @@
 #include <glm/trigonometric.hpp>
 
 #include <memory>
-
-static bool glfw_initialized = false;
 
 GLfloat posColors[] = {
 	-0.5f, -0.5f, 0.0f,	 1.0f, 1.0f, 0.0f,
@@ -82,17 +81,20 @@ Window::~Window() {
 
 int Window::init() {
 	LOG_INFO("Window creation");
+
+	glfwSetErrorCallback([](int errorCode, const char* desc)
+		{
+			LOG_CRIT("GLFW error: {0}", desc);
+		}
+	);
+
 	// Init GLFW
 	{
 		/* Initialize the library */
-		if (!glfw_initialized) {
-			if (!glfwInit()) {
-				LOG_CRIT("glfw was not init");
-				return -1;
-			}
-			glfw_initialized = true;
+		if (!glfwInit()) {
+			LOG_CRIT("glfw was not init");
+			return -1;
 		}
-
 	}
 
 	/* Create a windowed mode window and its OpenGL context */
@@ -100,19 +102,13 @@ int Window::init() {
 		window = glfwCreateWindow(windowData.width, windowData.height, windowData.title.c_str(), NULL, NULL);
 		if (!window) {
 			LOG_CRIT("window was not init");
-			glfwTerminate();
-			return -1;
+			return -2;
 		}
-		/* Make the window's context current */
-		glfwMakeContextCurrent(window);
 	}
 
-	// Iini GLAD
-	{
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-			LOG_CRIT("Failed to initialize GLAD");
-			return -1;
-		}
+	if (!Renderer::Init(window)) {
+		LOG_CRIT("Failed to init OpenGL");
+		return -3;
 	}
 
 	// Set Callbacks
@@ -160,7 +156,7 @@ int Window::init() {
 		// different from glfwSetWindowSizeCallback that we got size in pixels here
 		glfwSetFramebufferSizeCallback(window,
 			[](GLFWwindow* window, int width, int height) {
-				glViewport(0, 0, width, height);
+				Renderer::SetViewport(width, height);
 			}
 		);
 	}
@@ -195,13 +191,17 @@ int Window::init() {
 }
 
 void Window::shutdown() {
+
+	if (ImGui::GetCurrentContext())
+		ImGui::DestroyContext();
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
 
 void Window::on_update() {
-	glClearColor(backgroundCol[0], backgroundCol[1], backgroundCol[2], backgroundCol[3]);
-	glClear(GL_COLOR_BUFFER_BIT);
+	Renderer::SetClearColor(backgroundCol[0], backgroundCol[1], backgroundCol[2], backgroundCol[3]);
+	Renderer::Clear();
 
 	{
 		// let imgut know size of our window
@@ -260,9 +260,8 @@ void Window::on_update() {
 		auto projViewMat = camera.GetProjMatrix() * camera.GetViewMatrix();
 		shaderProgram->SetMatrix4("proViewMat", projViewMat);
 
-		vaoBuffer->Bind();
 		// draw
-		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(vaoBuffer->GetIndicesCount()), GL_UNSIGNED_INT, nullptr);
+		Renderer::Draw(*vaoBuffer);
 
 		// Conver UI data into data to draw
 		// create here vertex buffers index buffers and so on
@@ -271,8 +270,6 @@ void Window::on_update() {
 		// Use this data in our backend (opengl)
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
-
-
 	glfwSwapBuffers(window);
 	glfwPollEvents();
 }

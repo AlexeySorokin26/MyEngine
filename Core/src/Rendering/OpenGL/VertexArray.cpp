@@ -38,7 +38,7 @@ void VertexArray::SetIndexBuffer(const IndexBuffer& ib) {
 	indicesCount = ib.GetCount();
 }
 
-size_t VertexArray::GetIndicesCount() {
+size_t VertexArray::GetIndicesCount() const {
 	return indicesCount;
 }
 

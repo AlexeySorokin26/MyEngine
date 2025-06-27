@@ -12,7 +12,7 @@ public:
 	void SetIndexBuffer(const IndexBuffer& ib);
 	void Bind() const;
 	void Unbind();
-	size_t GetIndicesCount();
+	size_t GetIndicesCount() const;
 private:
 	unsigned int id = 0;
 	unsigned int elementsCount = 0; // amout of vbos and their elements
