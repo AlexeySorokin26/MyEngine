@@ -10,6 +10,7 @@ set(CORE_PUBLIC_INCLUDES
 )
 set(CORE_PRIVATE_INCLUDES
 	includes/Window.hpp
+	src/Modules/UIModule.hpp
 	src/Rendering/OpenGL/ShaderProgram.hpp
 	src/Rendering/OpenGL/VertexBuffer.hpp
 	src/Rendering/OpenGL/VertexArray.hpp
@@ -20,6 +21,7 @@ set(CORE_PRIVATE_SOURCES
 	src/Application.cpp
 	src/Window.cpp
 	src/Camera.cpp
+	src/Modules/UIModule.cpp
 	src/Rendering/OpenGL/ShaderProgram.cpp
 	src/Rendering/OpenGL/VertexBuffer.cpp
 	src/Rendering/OpenGL/VertexArray.cpp
@@ -65,7 +67,11 @@ target_link_libraries(${CORE_PROJECT_NAME} PRIVATE
 
 add_subdirectory(../external/glm ${CMAKE_CURRENT_BINARY_DIR}/glm)
 target_link_libraries(${CORE_PROJECT_NAME} PRIVATE
-	glm
+	glm::glm
+)
+# And add this to ensure the include directory is properly set:
+target_include_directories(${CORE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/glm
 )
 
 set(IMGUI_INCLUDES 

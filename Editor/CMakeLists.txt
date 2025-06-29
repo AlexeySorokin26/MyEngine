@@ -6,9 +6,10 @@ add_executable(${EDITOR_PROJECT_NAME}
 	main.cpp
 )
 
-target_link_libraries(${EDITOR_PROJECT_NAME}
-	PRIVATE
+target_link_libraries(${EDITOR_PROJECT_NAME} PRIVATE
 	Core
+	IMGUI
+	glm
 )
 
 target_compile_features(${EDITOR_PROJECT_NAME}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Event.hpp"
+#include "Camera.hpp"
 
 #include <memory>
 
@@ -16,8 +17,15 @@ public:
 	Application& operator=(const Application&) = delete;
 	Application& operator=(Application&&) = delete;
 
-	virtual int start(unsigned int width, unsigned int height, const char* title);
-	virtual void on_update();
+	virtual int Start(unsigned int width, unsigned int height, const char* title);
+	virtual void OnUpdate();
+	virtual void OnUiDraw();
+
+	float camPos[3] = { 0.f, 0.f, 10.f };
+	float camRotation[3] = { 0.f, 0.f, 0.f };
+	bool perspectiveCam = false;
+	Camera camera;
+
 private:
 	std::unique_ptr<Window> window;
 
