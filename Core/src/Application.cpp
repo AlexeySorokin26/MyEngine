@@ -2,6 +2,7 @@
 #include "Log.hpp"
 #include "Window.hpp"
 #include "Camera.hpp"
+#include "Input.hpp"
 
 #include "Rendering/OpenGL/ShaderProgram.hpp"
 #include "Rendering/OpenGL/VertexBuffer.hpp"
@@ -91,6 +92,30 @@ int Application::Start(unsigned int width, unsigned int height, const char* titl
 	eventDispather.add_event_listener<EventWindowClose>(
 		[&](EventWindowClose& event) {
 			closedWindow = true;
+		}
+	);
+
+	eventDispather.add_event_listener<EventKeyPressed>(
+		[&](EventKeyPressed& event)
+		{
+			//if (event.keyCode <= KeyCode::KEY_Z) {
+				if (event.repeated) {
+					LOG_CRIT("Pressed: {0}, repeated", char(event.keyCode));
+				}
+				else {
+					LOG_CRIT("Pressed {0}", char(event.keyCode));
+				}
+				Input::PressKey(event.keyCode);
+			//}
+		}
+	);
+	eventDispather.add_event_listener<EventKeyReleased>(
+		[&](EventKeyReleased& event)
+		{
+			//if (event.keyCode <= KeyCode::KEY_Z) {
+				LOG_CRIT("Released {0}", char(event.keyCode));
+				Input::ReleaseKey(event.keyCode);
+			//}
 		}
 	);
 	// now we need to call callbacks somehow

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Keys.hpp"
+
 #include <array>
 #include <functional>
 
@@ -83,11 +85,36 @@ struct EventWindowResize : public BaseEvent {
 };
 
 struct EventWindowClose : public BaseEvent {
-	EventWindowClose() 
+	EventWindowClose()
 	{
 	}
 	virtual EventType get_type() const override {
 		return type;
 	}
 	static const EventType type = EventType::WindowClose;
+};
+
+struct EventKeyPressed : public BaseEvent {
+	EventKeyPressed(const KeyCode keyCode, const bool repeated) :
+		keyCode(keyCode), repeated(repeated)
+	{
+	}
+	virtual EventType get_type() const override {
+		return type;
+	}
+	KeyCode keyCode;
+	bool repeated;
+	static const EventType type = EventType::KeyPressed;
+};
+
+struct EventKeyReleased : public BaseEvent {
+	EventKeyReleased(const KeyCode keyCode) :
+		keyCode(keyCode)
+	{
+	}
+	virtual EventType get_type() const override {
+		return type;
+	}
+	KeyCode keyCode;
+	static const EventType type = EventType::KeyReleased;
 };

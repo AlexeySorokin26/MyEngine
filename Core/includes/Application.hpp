@@ -23,7 +23,7 @@ public:
 
 	float camPos[3] = { 0.f, 0.f, 10.f };
 	float camRotation[3] = { 0.f, 0.f, 0.f };
-	bool perspectiveCam = false;
+	bool perspectiveCam = true;
 	Camera camera;
 
 private:

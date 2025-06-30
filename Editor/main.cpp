@@ -2,12 +2,43 @@
 #include <memory>
 
 #include "Application.hpp"
+#include "Input.hpp"
 #include <imgui/imgui.h>
 
 class Editor : public Application {
 public:
 	void OnUpdate() override {
-		//std::cout << "Updating application..." << std::endl;
+		if (Input::IsKeyPressed(KeyCode::KEY_W)) {
+			camPos[2] -= 0.1;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_S)) {
+			camPos[2] += 0.1;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_A)) {
+			camPos[0] += 0.1;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_D)) {
+			camPos[0] -= 0.1;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_E)) {
+			camPos[1] += 0.1;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_Q)) {
+			camPos[1] -= 0.1;
+		}
+
+		if (Input::IsKeyPressed(KeyCode::KEY_UP)) {
+			camRotation[0] += 0.5;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_DOWN)) {
+			camRotation[0] -= 0.5;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_RIGHT)) {
+			camRotation[1] += 0.5;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_LEFT )) {
+			camRotation[1] -= 0.5;
+		}
 	}
 	void OnUiDraw() override {
 		ImGui::Begin("Editor");

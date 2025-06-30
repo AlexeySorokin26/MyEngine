@@ -7,6 +7,8 @@ set(CORE_PUBLIC_INCLUDES
 	includes/Log.hpp
 	includes/Event.hpp
 	includes/Camera.hpp
+	includes/Keys.hpp
+	includes/Input.hpp
 )
 set(CORE_PRIVATE_INCLUDES
 	includes/Window.hpp
@@ -21,6 +23,7 @@ set(CORE_PRIVATE_SOURCES
 	src/Application.cpp
 	src/Window.cpp
 	src/Camera.cpp
+	src/Input.cpp
 	src/Modules/UIModule.cpp
 	src/Rendering/OpenGL/ShaderProgram.cpp
 	src/Rendering/OpenGL/VertexBuffer.cpp
