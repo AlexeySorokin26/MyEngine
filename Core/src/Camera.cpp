@@ -1,6 +1,7 @@
 #include "Camera.hpp"
 
 #include <glm/trigonometric.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 Camera::Camera(const glm::vec3& pos, const glm::vec3& rotation, const ProjectionMode projMode) :
 	pos(pos), rotation(rotation), projMode(projMode)
@@ -35,37 +36,47 @@ void Camera::SetProjMode(const ProjectionMode projMode)
 }
 
 void Camera::UpdateViewMatrix() {
-	glm::mat4 translationMat(
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		-pos[0], -pos[1], -pos[2], 1
-	);
+
+	const float rollRad = glm::radians(rotation.x);
+	const float pitchRad = glm::radians(rotation.y);
+	const float yawRad = glm::radians(rotation.z);
+
 	// Z 
-	float rotateRadZ = glm::radians(-rotation.z);
-	glm::mat4 rotateZMat(
-		cos(rotateRadZ), sin(rotateRadZ), 0, 0,
-		-sin(rotateRadZ), cos(rotateRadZ), 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
+	glm::mat3 rotateZMat(
+		cos(rollRad), sin(rollRad), 0,
+		-sin(rollRad), cos(rollRad), 0,
+		0, 0, 1
 	);
 	// Y
-	float rotateRadY = glm::radians(-rotation.y);
-	glm::mat4 rotateYMat(
-		cos(rotateRadY), 0, -sin(rotateRadY), 0,
-		0, 1, 0, 0,
-		sin(rotateRadY), 0, cos(rotateRadY), 0,
-		0, 0, 0, 1
+	glm::mat3 rotateYMat(
+		cos(pitchRad), 0, -sin(pitchRad),
+		0, 1, 0,
+		sin(pitchRad), 0, cos(pitchRad)
 	);
 	// X
-	float rotateRadX = glm::radians(-rotation.x);
-	glm::mat4 rotateXMat(
-		1, 0, 0, 0,
-		0, cos(rotateRadX), sin(rotateRadX), 0,
-		0, -sin(rotateRadX), cos(rotateRadX), 0,
-		0, 0, 0, 1
+	glm::mat3 rotateXMat(
+		1, 0, 0,
+		0, cos(yawRad), sin(yawRad),
+		0, -sin(yawRad), cos(yawRad)
 	);
-	viewMatrix = rotateYMat * rotateXMat * translationMat;
+
+	const glm::mat3 eulerRotateMatr = rotateZMat * rotateYMat * rotateXMat;
+
+	direction = glm::normalize(eulerRotateMatr * worldForward);
+	right = glm::normalize(eulerRotateMatr * worldRight);
+	up = glm::cross(right, direction);
+
+	viewMatrix = glm::lookAt(pos, pos + direction, up);
+}
+
+void  Camera::AddMovementAndRotation(const glm::vec3& movementDelta, const glm::vec3 rotationDelta) {
+	pos += direction * movementDelta.x;
+	pos += right * movementDelta.y;
+	pos += up * movementDelta.z;
+
+	rotation += rotationDelta;
+
+	UpdateViewMatrix(); 
 }
 
 void Camera::UpdateProjectionMatrix() {
@@ -105,3 +116,12 @@ glm::mat4 Camera::GetProjMatrix() const
 	return projMatrix;
 }
 
+void Camera::MoveForward(const float delta) {
+	pos += direction * delta;
+}
+void Camera::MoveRight(const float delta) {
+	pos += right * delta;
+}
+void Camera::MoveUp(const float delta) {
+	pos += up * delta;
+}

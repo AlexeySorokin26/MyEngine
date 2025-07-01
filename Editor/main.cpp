@@ -8,42 +8,80 @@
 class Editor : public Application {
 public:
 	void OnUpdate() override {
+
+		bool moveCam = false;
+
+		glm::vec3 movementDelta{ 0,0,0 };
+		glm::vec3 rotationDelta{ 0,0,0 };
+
 		if (Input::IsKeyPressed(KeyCode::KEY_W)) {
-			camPos[2] -= 0.1;
+			movementDelta.x += 0.05f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_S)) {
-			camPos[2] += 0.1;
+			movementDelta.x -= 0.05f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_A)) {
-			camPos[0] += 0.1;
+			movementDelta.y -= 0.05f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_D)) {
-			camPos[0] -= 0.1;
+			movementDelta.y += 0.05f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_E)) {
-			camPos[1] += 0.1;
+			movementDelta.z += 0.05f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_Q)) {
-			camPos[1] -= 0.1;
+			movementDelta.z -= 0.05f;
+			moveCam = true;
 		}
 
 		if (Input::IsKeyPressed(KeyCode::KEY_UP)) {
-			camRotation[0] += 0.5;
+			rotationDelta.y -= 0.5f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_DOWN)) {
-			camRotation[0] -= 0.5;
+			rotationDelta.y += 0.5f;
+			moveCam = true;
 		}
 		if (Input::IsKeyPressed(KeyCode::KEY_RIGHT)) {
-			camRotation[1] += 0.5;
+			rotationDelta.z += 0.5f;
+			moveCam = true;
 		}
-		if (Input::IsKeyPressed(KeyCode::KEY_LEFT )) {
-			camRotation[1] -= 0.5;
+		if (Input::IsKeyPressed(KeyCode::KEY_LEFT)) {
+			rotationDelta.z -= 0.5f;
+			moveCam = true;
 		}
+		if (Input::IsKeyPressed(KeyCode::KEY_P)) {
+			rotationDelta.x += 0.5f;
+			moveCam = true;
+		}
+		if (Input::IsKeyPressed(KeyCode::KEY_O)) {
+			rotationDelta.x -= 0.5f;
+			moveCam = true;
+		}
+
+		if(moveCam)
+			camera.AddMovementAndRotation(movementDelta, rotationDelta);
 	}
 	void OnUiDraw() override {
+		camPos[0] = camera.GetCamPos().x;
+		camPos[1] = camera.GetCamPos().y;
+		camPos[2] = camera.GetCamPos().z;
+		camRotation[0] = camera.GetCamRotation().x;
+		camRotation[1] = camera.GetCamRotation().y;
+		camRotation[2] = camera.GetCamRotation().z;
+
 		ImGui::Begin("Editor");
-		ImGui::SliderFloat3("Cam pos", camPos, -10.f, 10.f);
-		ImGui::SliderFloat3("Cam rotation", camRotation, 0.f, 360.f);
+		if (ImGui::SliderFloat3("Cam pos", camPos, -10.f, 10.f)) {
+			camera.SetPos(glm::vec3(camPos[0], camPos[1], camPos[2]));
+		}
+		if (ImGui::SliderFloat3("Cam rotation", camRotation, 0.f, 360.f)) {
+			camera.SetRotation(glm::vec3(camRotation[0], camRotation[1], camRotation[2]));
+		}
 		ImGui::Checkbox("Cam perspective", &perspectiveCam);
 		ImGui::End();
 	}

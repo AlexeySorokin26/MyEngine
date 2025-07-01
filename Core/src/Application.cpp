@@ -22,10 +22,10 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 GLfloat posColors[] = {
-	-0.5f, -0.5f, 0.0f,	 1.0f, 1.0f, 0.0f,
-	0.5f, -0.5f, 0.0f,	 1.0f, 0.0f, 0.0f,
-	-0.5f, 0.5f, 0.0f,	 1.0f, 0.0f, 1.0f,
-	0.5f, 0.5f, 0.0f,	 0.0f, 1.0f, 1.0f
+	0.0f, -0.5f,  -0.5f, 	 1.0f, 1.0f, 0.0f,
+	0.0f,  0.5f,  -0.5f, 	 1.0f, 0.0f, 0.0f,
+	0.0f, -0.5f,   0.5f,  	 1.0f, 0.0f, 1.0f,
+	0.0f,  0.5f,   0.5f,  	 0.0f, 1.0f, 1.0f
 };
 
 GLuint indices[] = {
@@ -183,7 +183,6 @@ int Application::Start(unsigned int width, unsigned int height, const char* titl
 		auto modelMat = translationMat * rotateZMat * scaleMat;
 		shaderProgram->SetMatrix4("modelMat", modelMat);
 
-		camera.SetPosRot(glm::vec3(camPos[0], camPos[1], camPos[2]), glm::vec3(camRotation[0], camRotation[1], camRotation[2]));
 		camera.SetProjMode(perspectiveCam ? Camera::ProjectionMode::Perspective : Camera::ProjectionMode::Orthographic);
 
 		auto projViewMat = camera.GetProjMatrix() * camera.GetViewMatrix();
