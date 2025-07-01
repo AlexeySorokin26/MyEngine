@@ -9,4 +9,5 @@ public:
 	static void OnWindowUpdateBegin();
 	static void OnWindowUpdateDraw();
 
+	static void ShowExampleAppDockSpace(bool* p_open);
 };

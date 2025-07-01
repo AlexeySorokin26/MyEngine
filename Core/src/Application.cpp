@@ -99,13 +99,13 @@ int Application::Start(unsigned int width, unsigned int height, const char* titl
 		[&](EventKeyPressed& event)
 		{
 			//if (event.keyCode <= KeyCode::KEY_Z) {
-				if (event.repeated) {
-					LOG_CRIT("Pressed: {0}, repeated", char(event.keyCode));
-				}
-				else {
-					LOG_CRIT("Pressed {0}", char(event.keyCode));
-				}
-				Input::PressKey(event.keyCode);
+			if (event.repeated) {
+				LOG_CRIT("Pressed: {0}, repeated", char(event.keyCode));
+			}
+			else {
+				LOG_CRIT("Pressed {0}", char(event.keyCode));
+			}
+			Input::PressKey(event.keyCode);
 			//}
 		}
 	);
@@ -113,8 +113,8 @@ int Application::Start(unsigned int width, unsigned int height, const char* titl
 		[&](EventKeyReleased& event)
 		{
 			//if (event.keyCode <= KeyCode::KEY_Z) {
-				LOG_CRIT("Released {0}", char(event.keyCode));
-				Input::ReleaseKey(event.keyCode);
+			LOG_CRIT("Released {0}", char(event.keyCode));
+			Input::ReleaseKey(event.keyCode);
 			//}
 		}
 	);
@@ -196,6 +196,9 @@ int Application::Start(unsigned int width, unsigned int height, const char* titl
 		{
 			// Create a frame where we want to draw
 			UIModule::OnWindowUpdateBegin();
+			bool show = true;
+			UIModule::ShowExampleAppDockSpace(&show);
+			ImGui::ShowDemoWindow();
 			ImGui::Begin("Adjust parameters");
 			ImGui::ColorEdit4("Change background color", backgroundCol);
 			ImGui::SliderFloat3("Scale mat", scale, 0.f, 1.f);
